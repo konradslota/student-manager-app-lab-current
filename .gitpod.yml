@@ -2,4 +2,4 @@ image:
   file: .gitpod.Dockerfile
 
 ports:
-  - port: 6080
+- port: 6080
