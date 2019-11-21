@@ -7,11 +7,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class StudentManager {
+public class StudentManager implements Serializable {
 
 	// Declare a List called students to hold the student objects
 	private List<Student> studentList;
