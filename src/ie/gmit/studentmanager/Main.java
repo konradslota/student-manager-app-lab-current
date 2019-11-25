@@ -3,8 +3,11 @@ package ie.gmit.studentmanager;
 import java.io.File;
 import java.io.Serializable;
 import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -72,22 +75,47 @@ public class Main extends Application implements Serializable {
         Button btnSaveDB = new Button("Save Students to DB");
         btnSaveDB.setOnAction(e -> {
             if (sm.findTotalStudents() > 0){
-            try {
-                File studentDB = new File("./resources/studentsDB.ser");
-                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("studentsDB"));
-                out.writeObject(sm);
-                out.close();
-                taMyOutput.setText("Student Database Saved");
-
-            } catch (Exception exception) {
-                System.out.print("[Error: Cannont save DB. Cause: ");
-                exception.printStackTrace();
-                taMyOutput.setText("ERROR: Failed to save Students DB!");
+                try {
+                    File studentDB = new File("./resources/studentsDB.ser");
+                    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(studentDB));
+                    out.writeObject(sm);
+                    out.close();
+                    taMyOutput.setText("Student Database Saved");
+                } catch (Exception exception) {
+                    System.out.print("[Error] Cannont save DB. Cause: ");
+                    exception.printStackTrace();
+                    taMyOutput.setText("ERROR: Failed to save Students DB!");
                 }
-           } else {
-               taMyOutput.setText("No Students in list to save!");
-           }
+            } else {
+                taMyOutput.setText("No Students in List to save!");
+            }
         });
+
+        // Load from DB
+        Button btnLoadDB = new Button("Load Students from DB");
+        TextField tfLoadStudents = new TextField();
+
+        tfLoadStudents.setPromptText("Please enter DB path");
+        btnLoadDB.setOnAction(e -> {
+
+            try{
+                File studentDB = new File(tfLoadStudents.getText());
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(studentDB));
+                sm = (StudentManager) in.readObject();
+                in.close();
+                taMyOutput.setText("Successfully loaded students from Student Database");
+            } catch (Exception exception){
+                System.out.print("[Error] Cannont load DB. Cause: ");
+                exception.printStackTrace();
+                taMyOutput.setText("ERROR: Failed to load Students DB!");
+        }
+    });
+
+        // Add quit button
+        Button btnQuit = new Button("Quit");
+        btnQuit.setOnAction(e ->
+            Platform.exit()
+        );
 
         // Adding and arranging all the nodes in the grid - add(node, column, row)
         GridPane gridPane1 = new GridPane();
@@ -96,16 +124,20 @@ public class Main extends Application implements Serializable {
         gridPane1.add(btnShowTotal, 0, 1);
         gridPane1.add(tfTotalNumberOfStudents, 1, 1);
         gridPane1.add(tfStudentDel, 0, 2);
-        gridPane1.add(btnSaveDB, 0, 3);
         gridPane1.add(btnDelStudent, 1, 2);
-        gridPane1.add(taMyOutput, 0, 4, 2, 1);
+        gridPane1.add(btnSaveDB, 0, 3);
+        gridPane1.add(btnLoadDB, 0, 4);
+        gridPane1.add(tfLoadStudents, 1, 4);
+        gridPane1.add(taMyOutput, 0, 5, 2, 1);
+        gridPane1.add(btnQuit, 0, 6);
 
         // Preparing the Stage (i.e. the container of any JavaFX application)
         // Create a Scene by passing the root group object, height and width
         Scene scene1 = new Scene(gridPane1, 400, 450);
         // Setting the title to Stage.
+
         if (getParameters().getRaw().size() == 0) {
-            primaryStage.setTitle("Student Manager ApplicationX");
+            primaryStage.setTitle("Student Manager Application");
         } else {
             primaryStage.setTitle(getParameters().getRaw().get(0));
         }
